@@ -1,0 +1,45 @@
+name: Release Workflow
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *" # Every day at 05:00 UTC
+  push:
+    branches:
+      - master
+    paths-ignore: 
+      - 'sr_reject_all_except_favourites.conf'
+jobs:
+  update:
+    name: Update lists
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build lists
+        env:
+          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
+        run: |
+          python3 main.py -v -l "$MAXMIND_LICENSE_KEY"
+
+      - name: Release
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+          ./release.sh
