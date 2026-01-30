@@ -1661,7 +1661,6 @@ IP-CIDR,2a0d:abc0::/29
 IP-CIDR,2a0d:adc0::/29
 IP-CIDR,2a0d:afc0::/29
 IP-CIDR,2a0d:b1c0::/29
-IP-CIDR,2a0d:b2c0::/29
 IP-CIDR,2a0d:b540::/29
 IP-CIDR,2a0d:b600::/29
 IP-CIDR,2a0d:b841::/32
