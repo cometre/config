@@ -2,6 +2,8 @@
 
 /bin/rm -fv *.list
 cp -fv out/*.list .
+/bin/rm -fv *.acl
+cp -fv out/*.acl .
 
 if [ -z "$(git status --porcelain)" ]; then
   echo "No changes to commit."
@@ -40,8 +42,12 @@ update_timestamp sr_direct_ru_geo_and_asn.conf
 delete_first_line sr_reject_ru_geo_and_asn.conf
 update_timestamp sr_reject_ru_geo_and_asn.conf
 
+update_timestamp ss_direct_ru_geo_and_asn.acl
+update_timestamp ss_reject_ru_geo_and_asn.acl
+
 git add *.list
 git add *.conf
+git add *.acl
 git commit -m "update lists [$now]"
 git push origin master
 if [ $? -ne 0 ]; then

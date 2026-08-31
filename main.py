@@ -238,6 +238,23 @@ def write_combined_ruleset(country_blocks_dict, asn_blocks_list, output_file):
     logging.info(f"Combined rule set saved to {output_file}")
 
 
+def write_acl(ipv4_blocks, ipv6_blocks, output_file, list_section):
+    """
+    Writes an ACL file.
+    Default action is proxy_all; entries listed under list_section override it:
+    - "bypass_list": listed CIDRs go direct, everything else through proxy
+    - "outbound_block_list": listed CIDRs are blocked outright, everything else through proxy
+    """
+    with open(output_file, "w") as f:
+        f.write("[proxy_all]\n")
+        f.write(f"[{list_section}]\n")
+        for block in ipv4_blocks:
+            f.write(f"{block}\n")
+        for block in ipv6_blocks:
+            f.write(f"{block}\n")
+    logging.info(f"ACL file saved to {output_file}")
+
+
 
 # Entry point
 
@@ -367,6 +384,27 @@ class Command(object):
             geo_lite2_country_db.ipv6_blocks,
             geo_lite2_asn_db.ipv6_blocks,
             output_dir / "maxmind_ipv6_all_cidr.list",
+        )
+
+        merged_ipv4 = merge_cidr_blocks(
+            geo_lite2_country_db.ipv4_blocks, geo_lite2_asn_db.ipv4_blocks
+        )
+        merged_ipv6 = merge_cidr_blocks(
+            geo_lite2_country_db.ipv6_blocks, geo_lite2_asn_db.ipv6_blocks
+        )
+
+        write_acl(
+            merged_ipv4,
+            merged_ipv6,
+            output_dir / "ss_direct_ru_geo_and_asn.acl",
+            "bypass_list",
+        )
+
+        write_acl(
+            merged_ipv4,
+            merged_ipv6,
+            output_dir / "ss_reject_ru_geo_and_asn.acl",
+            "outbound_block_list",
         )
 
 
